@@ -8,92 +8,46 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <time.h>
+#include <stdlib.h>
+#include "game.h"
 
-#define LIVES                 3
-#define USERNAME_MAX_LENGTH  14
-
-
-const std::filesystem::path program_running_path = std::filesystem::current_path();
-
-const std::string credentials_dir_name = "Hangman Player Credentials";
-const std::string credentials_file_name = "credentials.txt";
-
-const std::string questions_dir_name = "questions";
-const std::string questions_file_name = "questions.txt";
-
-
-class Game
-{
-  private:
-    
-    bool player_has_won;
-    int lives;
-    int score;
-    int questions_file_size;
-    std::string username;
-    std::string word_to_guess;
-    std::string typed_characters;
-    std::vector<std::string> words_to_guess;
-
-  public:
-
-    Game();
-
-    void setScore(int s) 
-    {
-        score += s;
-
-        if (score < 0)
-            score = 0;
-    }
-
-    void setLives(int l)
-    {
-        if (l < 0) lives = 0;
-
-        else       lives = l;
-    }
-
-    void start(void);
-    void get_credentials_from_user_input(void);
-    bool username_has_spaces_or_new_lines(const std::string& str);
-    void handle_credentials(void);
-    
-    void menu(void);
-    char menu_user_input(void);
-
-    char get_character_from_input(void);
-    
-    void play(void);
-    void setWordsToGuess(void);
-    void chose_randomly_word_to_guess(void);
-    void handle_guessed_character(char guessed_characters[], char &input_character);
-    void print_word_to_be_guessed(const char guessed_characters[]);
-    void print_characters_written_by_the_player(const char guessed_characters[]);
-    void check_victory(const char* guessed_characters);
-    void check_win_or_loss();
-    void write_new_score_in_credentials_file();
-
-    void see_score(void);
-    void exit(void);
-};
-
-
+static const std::filesystem::path program_running_path = std::filesystem::current_path();
+static const std::string credentials_dir_name = "hangman_player_credentials";
+static const std::string credentials_file_name = "credentials.txt";
+static const std::string questions_dir_name = "questions";
+static const std::string questions_file_name = "questions.txt";
 
 Game::Game()
 {
     player_has_won = false;
 
-    setLives(LIVES);
+    set_lives(LIVES);
     score = 0;
 
     username = ""; 
     word_to_guess = ""; 
     typed_characters = ""; 
 
-    setWordsToGuess();
+    set_words_to_guess();
 }
 
+
+void Game::set_score(int s) 
+{
+    score += s;
+
+    if (score < 0)
+        score = 0;
+}
+
+
+void Game::set_lives(int l)
+{
+    if (l < 0) lives = 0;
+
+    else       lives = l;
+}
 
 
 /* 
@@ -104,7 +58,7 @@ Game::Game()
     player will have to guess.
 */
 
-void Game::setWordsToGuess(void)
+void Game::set_words_to_guess()
 {
     std::string questions_dir_path = program_running_path.parent_path().string() + '/' + questions_dir_name + '/' + questions_file_name;
 
@@ -141,7 +95,7 @@ void Game::setWordsToGuess(void)
     Starts the Hangman game.
 */
 
-void Game::start(void)
+void Game::start()
 {
     get_credentials_from_user_input();
     handle_credentials();
@@ -154,7 +108,7 @@ void Game::start(void)
     Sets the username written in input by the user.
 */
 
-void Game::get_credentials_from_user_input(void)
+void Game::get_credentials_from_user_input()
 {
     std::string input_username;
     
@@ -205,7 +159,7 @@ bool Game::username_has_spaces_or_new_lines(const std::string& str)
     to save the last score of the player in the variable 'score'.
 */
 
-void Game::handle_credentials(void)
+void Game::handle_credentials()
 {   
     if (!std::filesystem::exists(credentials_dir_name))
     {
@@ -247,7 +201,7 @@ void Game::handle_credentials(void)
         {
             size_t score_position = line.find_last_of(" ");
 
-            setScore(std::stoi(line.substr(score_position + 1)));
+            set_score(std::stoi(line.substr(score_position + 1)));
 
             credentials_file.close();
             return;
@@ -263,7 +217,7 @@ void Game::handle_credentials(void)
 
 
 
-void Game::menu(void)
+void Game::menu()
 {
     char input_character = menu_user_input();
 
@@ -294,7 +248,7 @@ void Game::menu(void)
     to see the score or to exit the game.
 */
 
-char Game::menu_user_input(void)
+char Game::menu_user_input()
 {
     char input_character;
 
@@ -308,10 +262,9 @@ char Game::menu_user_input(void)
         if (input_character == 'p' ||
             input_character == 's' || 
             input_character == 'e')
-                
             break;
-    }
-    while (true);
+
+    } while (true);
 
     return input_character;
 }
@@ -323,7 +276,7 @@ char Game::menu_user_input(void)
     from the input is valid or not.
 */
 
-char Game::get_character_from_input(void)
+char Game::get_character_from_input()
 {
     char character_to_return;
 
@@ -350,10 +303,10 @@ char Game::get_character_from_input(void)
     Allows the user tu play the Hangman game.
 */
 
-void Game::play(void)
+void Game::play()
 {
     player_has_won = false;
-    setLives(LIVES);
+    set_lives(LIVES);
     typed_characters = "";
 
     chose_randomly_word_to_guess();
@@ -362,10 +315,8 @@ void Game::play(void)
 
     char guessed_characters[word_to_guess.length() + 1];
 
-    for (int i = 0; i < word_to_guess.length(); i++) // maybe in a better way
-    {
+    for (long unsigned int i = 0; i < word_to_guess.length(); i++) // maybe in a better way
         guessed_characters[i] = '_';
-    }
 
     char input_character;
 
@@ -398,7 +349,7 @@ void Game::play(void)
         else
         {
             std::cout << "\nCharacter '" << input_character << "' is wrong\n";
-            setLives(lives - 1);
+            set_lives(lives - 1);
         }   
     }
 
@@ -418,7 +369,7 @@ void Game::play(void)
     contains all the words from the file questions.txt.
 */
 
-void Game::chose_randomly_word_to_guess(void)
+void Game::chose_randomly_word_to_guess()
 {
     srand((unsigned) time(NULL));
 
@@ -432,14 +383,14 @@ void Game::chose_randomly_word_to_guess(void)
 /*
     Prints the word that the player has to guess.
     
-    '_' for characters not yet guessed.
+    '_' for characters not guessed yet.
 */
 
 void Game::print_word_to_be_guessed(const char guessed_characters[])
 {
     std::cout << "\n\t\t";
 
-    for (int i = 0; i < word_to_guess.length(); i++)
+    for (long unsigned int i = 0; i < word_to_guess.length(); i++)
         std::cout << guessed_characters[i] << " ";
 }
 
@@ -454,7 +405,7 @@ void Game::print_characters_written_by_the_player(const char guessed_characters[
 {
     std::cout << "\t\t\t\t\tTyped characters: ";
 
-    for (int i = 0; i < typed_characters.length(); i++)
+    for (long unsigned int i = 0; i < typed_characters.length(); i++)
             std::cout << typed_characters[i] << " ";
 }
 
@@ -468,7 +419,7 @@ void Game::print_characters_written_by_the_player(const char guessed_characters[
 
 void Game::handle_guessed_character(char guessed_characters[], char &input_character)
 {
-    for (int i = 0; i < word_to_guess.length(); i++)
+    for (long unsigned int i = 0; i < word_to_guess.length(); i++)
     {
         if (word_to_guess[i] == input_character)
             guessed_characters[i] = input_character;
@@ -511,13 +462,13 @@ void Game::check_win_or_loss()
 {
     if (player_has_won)
     {
-        setScore(word_to_guess.length());
+        set_score(word_to_guess.length());
         
         std::cout << "\n\n\n Player '" << this->username << "' has WON !!!";
     }
     else
     {
-        setScore(-word_to_guess.length());
+        set_score(-word_to_guess.length());
         std::cout << "\n\n\n Player '" << this->username << "' has LOST !!!";
     }
 
@@ -584,7 +535,7 @@ void Game::write_new_score_in_credentials_file()
     the 's' character in the 'menu()' method.
 */
 
-void Game::see_score(void)
+void Game::see_score()
 {
     std::cout << '\n' << this->username << "  ----->  current score: " << this->score << std::endl;
 
@@ -610,7 +561,7 @@ void Game::see_score(void)
     Exits from the game.
 */
 
-void Game::exit(void)
+void Game::exit()
 {
     std::exit(0);
 }
