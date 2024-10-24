@@ -1,0 +1,80 @@
+========================================================================================================================
+utilizzare PokéAPI per cercare info sui pokemon.
+
+QUERY:
+
+=======================================
+(numero pokedex, nome_pokemon, tipo 1 e tipo 2)
+--------------------------------------
+...
+=======================================
+
+successivamente, decidere se aggiungere i pokemon al proprio database (online).
+
+serve un comando pr visualizzare la tabella del database.
+
+DOPO usare GIPHY!!!
+========================================================================================================================
+
+
+to use an API we have to use:
+
+a) API_URL
+b) in the API_URL we have to attach the elements (in this case only the pokomen name) of which the
+   server will execute the query.
+
+URL url = new URL(API_URL + pokemonName.toLowerCase());
+
+HttpURLConnection connection = (put the cast)url.openConnection(); // REMEMBER THE CAST
+connection.setRequestMethod("GET"); // retrieve data
+
+========================================================================================================================
+
+we have to convert the JSON content returned from the server into a readable thing.
+to do this we use .getInputStream() to return the content of returned JSON thing from server stored in
+object connection -> (HttpURLConnection)
+
+to convert from a certain format to UTF we use:
+new InputStreamReader(connection.getInputStream());
+
+to add the possibility to read the content we store this into a BufferReader. The final result looks like this:
+BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+next we have to read line by line the content and save it into a string (builder?) and later we have to convert this
+string into a JSON object.
+
+String line;
+StringBuilder content;
+
+while ((line == br.readLine()) != null)
+    content.append(line);
+
+!ENSURE TO CLOSE EVERYTHING!
+br.close();
+connection.disconnect();
+
+========================================================================================================================
+
+now we have to convert the string into a JSON object so later we can access the attributes of the pokemon.
+to do this we have to convert the content: StringBuilder into String using .toString().
+then we have to parse the string so later we can store it into a JsonObject.
+the final result looks like this:
+
+JsonObject jsonObj = JsonParser.parseString(content.toString()).getAsJsonObject();
+
+/* NOW WE RETRIEVE DATA FROM JSON OBJECT AND CREATE AN OBJECT POKEMON */
+
+we have to use json_object.get(<key>: String) to retrieve the key.
+to convert the value of 'key' in a way that java later knows how to handle we have to do:
+key : (array_of_objects) -> getAsJsonArray()
+key : (object) -> getAsJsonObject() // only when the key inside an array
+
+int pokedexNumber = jsonObj.get("id").getAsInt(); // don't forget to convert the type of the object [ .getAs...() ]
+String pokemonName = jsonObj.get("name").getAsString;
+
+JsonArray typesArray       = jsonObject.getAsJsonArray("types"); // Extract the "types" array
+JsonObject firstTypeObject = typesArray.get(0).getAsJsonObject(); // Get the first type object from the array
+JsonObject typeDetails     = firstTypeObject.getAsJsonObject("type"); // Get the "type" object from the first type entry
+String type1               = typeDetails.get("name").getAsString(); // Extract the name of the type
+
+String type2 = null; // it is not guaranteed that a pokemon has it
