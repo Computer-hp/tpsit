@@ -8,7 +8,7 @@
 
 
 #include <bits/stdc++.h>
-#include "Data.cpp"
+#include "data.cpp"
 
 #define N_ROBOT 5
 
@@ -26,19 +26,14 @@ vector<Data> vector_of_data(N_ROBOT);
 mutex critical;
 condition_variable cv;
 condition_variable_any cv_any;
-
 bool vector_of_data_is_occupied = false;
-
 atomic<int> working_threads = N_ROBOT + 1;
 
 
 void initialize_vector_of_data();
-
 void write();
 Data generate_random_data();
-
 void read(int n_thread);
-
 
 
 int main()
@@ -205,4 +200,3 @@ Data generate_random_data()
 
 	return data;
 }
-
