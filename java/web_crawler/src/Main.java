@@ -6,11 +6,26 @@ public class Main {
 
 
     public static void main(String[] args) {
-        /*SingleThreadWebCrawler crawler1 = new SingleThreadWebCrawler(3);
-        crawler1.crawl(URL);
-        crawler1.writeUrlsToJsonFile();*/
+        /*********** Single-thread ***********/
+        long startTime = System.currentTimeMillis();
 
-        MultiThreadWebCrawler crawler2 = new MultiThreadWebCrawler(5, 3);
+        SingleThreadWebCrawler crawler1 = new SingleThreadWebCrawler(3);
+        crawler1.crawl(URL);
+        //crawler1.writeUrlsToJsonFile();
+
+        long endTime = System.currentTimeMillis();
+        long duration = endTime - startTime;
+        System.out.println("Time: " + duration + " ms.");
+
+
+        /*********** Multi-threading ***********/
+        startTime = System.currentTimeMillis();
+
+        MultiThreadWebCrawler crawler2 = new MultiThreadWebCrawler(5, 2);
         crawler2.crawl(URL);
+
+        endTime = System.currentTimeMillis();
+        duration = endTime - startTime;
+        System.out.println("Time: " + duration + " ms.");
     }
 }
