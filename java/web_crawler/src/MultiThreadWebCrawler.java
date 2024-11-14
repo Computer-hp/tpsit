@@ -30,14 +30,18 @@ public class MultiThreadWebCrawler {
         submitTask(startUrl, 0);
 
         try {
-            // when i use the first while even if the number of tasks and active threads is 0,
+            // 1)
+            // When the first while is used, even if the number of tasks and active threads is 0,
             // the main threads doesn't stop executing the while loop.
             //while (!executorService.awaitTermination(1, TimeUnit.SECONDS)) {
 
-            // using the second while is ok
-            while (executorService.getActiveCount() > 0 || !executorService.getQueue().isEmpty()) {
-                //System.out.println("Active threads: " + executorService.getActiveCount());
-                //System.out.println("Pending tasks: " + executorService.getQueue().size());
+            // 2) This works
+            //while (executorService.getActiveCount() > 0 || !executorService.getQueue().isEmpty()) {
+
+            // 3)
+            while(executorService.getActiveCount() > 0) {
+                System.out.println("Active threads: " + executorService.getActiveCount());
+                System.out.println("Pending tasks: " + executorService.getQueue().size());
                 Thread.sleep(100);
             }
 
@@ -48,7 +52,7 @@ public class MultiThreadWebCrawler {
         }
 
         executorService.shutdown();
-        //writeUrlsToJsonFile();
+        writeUrlsToJsonFile();
     }
 
 

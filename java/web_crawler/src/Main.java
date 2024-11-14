@@ -7,6 +7,7 @@ public class Main {
 
     public static void main(String[] args) {
         /*********** Single-thread ***********/
+        /*
         long startTime = System.currentTimeMillis();
 
         SingleThreadWebCrawler crawler1 = new SingleThreadWebCrawler(3);
@@ -16,16 +17,18 @@ public class Main {
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
         System.out.println("Time: " + duration + " ms.");
+        */
 
 
         /*********** Multi-threading ***********/
-        startTime = System.currentTimeMillis();
+        //startTime = System.currentTimeMillis();
 
         MultiThreadWebCrawler crawler2 = new MultiThreadWebCrawler(5, 2);
         crawler2.crawl(URL);
 
-        endTime = System.currentTimeMillis();
+        /*endTime = System.currentTimeMillis();
         duration = endTime - startTime;
         System.out.println("Time: " + duration + " ms.");
+         */
     }
 }
