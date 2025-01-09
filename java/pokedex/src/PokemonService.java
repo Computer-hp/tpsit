@@ -1,62 +1,41 @@
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.HttpURLConnection;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonArray;
+
+import com.google.gson.*;
+
 
 public class PokemonService {
+
     private static final String API_URL = "https://pokeapi.co/api/v2/pokemon/";
 
-    public static Pokemon getPokemonInfo(String inputPokemonName) {
+    public static Pokemon getPokemonInfo(String pokemonName) {
         try {
-            URL url = new URL(API_URL + inputPokemonName);
+            URL url = new URL(API_URL + pokemonName);
             HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             connection.setRequestMethod("GET");
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream());
+            JsonObject jsonObject = JsonParser.parseReader(inputStreamReader).getAsJsonObject();
 
-            String line;
-            StringBuilder jsonContent = new StringBuilder();
+            int id = jsonObject.get("id").getAsInt();
+            String name = jsonObject.get("name").getAsString();
+            JsonObject type1Json = jsonObject.getAsJsonArray("types").get(0).getAsJsonObject();
+//            System.out.println(type1Json);
 
-            while ((line = br.readLine()) != null)
-                jsonContent.append(line);
+            String type1 = type1Json.get("type").getAsJsonObject().get("name").getAsString();
+            String type2 = "";
 
-            br.close();
-            connection.disconnect();
+            if (jsonObject.getAsJsonArray("types").size() > 1)
+                type2 = jsonObject.getAsJsonArray("types").get(1).getAsJsonObject().get("type").getAsJsonObject().get("name").getAsString();
 
-            JsonObject jsonObj = JsonParser.parseString(jsonContent.toString()).getAsJsonObject();
-
-            int pokedexNumber = jsonObj.get("id").getAsInt();
-            String pokemonName = jsonObj.get("name").getAsString();
-            String type1 = getPokemonTypeFromJsonArray(jsonObj, 0);
-            String type2 = getPokemonTypeFromJsonArray(jsonObj, 1);
-
-            return new Pokemon(pokedexNumber, pokemonName, type1, type2);
+            return new Pokemon(id, name, type1, type2);
         }
         catch (Exception e) {
-            System.out.println("Error fetching Pokémon data: " + e.getMessage());
-            return null;
-        }
-    }
-
-
-    private static String getPokemonTypeFromJsonArray(JsonObject jsonObj, int i) {
-        JsonArray typesArray = jsonObj.getAsJsonArray("types");
-        System.out.println(typesArray);
-
-        if (i >= typesArray.size()) {
-            System.out.print("\nThere is no second element of the pokemon.\n");
-            return null;
+            System.out.println(e.getMessage());
         }
 
-        JsonObject firstTypeObject = typesArray.get(i).getAsJsonObject();
-        System.out.println(firstTypeObject);
+        return null;
 
-        JsonObject typeDetails = firstTypeObject.getAsJsonObject("type");
-        System.out.println(typeDetails);
-
-        return typeDetails.get("name").getAsString();
     }
 }
